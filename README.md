@@ -6,7 +6,19 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](#license)
 [![OpenCV](https://img.shields.io/badge/OpenCV-Classical%20CV-orange.svg)](https://opencv.org/)
 
-VisionGuard is a fully offline, modular Computer Vision toolkit engineered for automated visual surveillance, geometric object counting, motion tracking, and digital image enhancement. It is designed from first principles to be 100% reproducible and terminal-executable with zero GPU, external API, or cloud dependencies.
+VisionGuard is a modular, fully offline computer-vision toolkit built for the **Computer Vision** flipped course evaluation. It provides four classical CV modules — face detection, motion tracking, object counting, and image enhancement — with an embedded SQLite persistence layer and automated analytical reporting.
+
+Designed to be completely reproducible, self-contained, and executable from the terminal with zero external model downloads or cloud dependencies.
+
+---
+
+## Student Information
+- **Author**: Aryan Vyas
+- **Registration Number**: 24BAI10343
+- **Course**: Computer Vision
+- **Evaluation**: Build Your Own Project (Flipped Course Evaluation)
+- **Platform**: VITyarthi
+- **Date**: September 17, 2026
 
 ---
 
@@ -27,28 +39,29 @@ VisionGuard is a fully offline, modular Computer Vision toolkit engineered for a
 - [Screenshots & Visual Results](#screenshots--visual-results)
 - [Design Diagrams](#design-diagrams)
 - [Project Structure](#project-structure)
+- [Design Decisions & Implementation Notes](#design-decisions--implementation-notes)
 - [License](#license)
 
 ---
 
 ## Project Overview
-Manual visual monitoring and physical item counting do not scale. VisionGuard provides a unified, command-line interface (CLI) to execute classical computer vision algorithms on images and video feeds. Every execution is tracked in an embedded SQLite database, storing input sources, execution durations, status codes, and bounding box coordinates for each detected object or event.
+Manual visual surveillance and manual counting of objects are time-consuming and error-prone. While modern deep learning has its merits, it often requires heavy GPU hardware, large pretrained weight files (hundreds of MBs), complex CUDA setups, and non-deterministic cloud delays.
 
-### Guiding Principles
-1. **Zero External Downloads at Runtime**: All model classifiers and sample media are bundled directly in the repository.
-2. **Deterministic & Reproducible**: Fully reproducible test suite with synthetic fixtures asserting exact mathematical quantities.
-3. **True Terminal Executability**: Clean argparse sub-commands with exit codes, standard I/O streams, and no required GUI interaction.
-4. **Relational Audit Trail**: Robust SQLite database maintaining strict foreign key relationships between execution sessions and individual entity detections.
+VisionGuard provides a clean, practical CLI alternative using classical computer-vision algorithms implemented in OpenCV and Python:
+1. **Zero External Downloads at Run Time**: The required Haar cascade XML and sample media are bundled directly in the repository.
+2. **Deterministic & Reproducible**: Automated test suite with synthetic fixtures asserting exact mathematical counts and invariants.
+3. **Pure Terminal Executability**: Clean argparse sub-commands with sensible defaults, standard exit codes, and no required GUI.
+4. **Relational Audit Trail**: Built-in SQLite database tracking every execution session and individual entity detection with strict foreign key integrity.
 
 ---
 
 ## Key Features
-- **Face Detection (`faces`)**: Haar Feature-based Cascade Classifier with histogram-equalized pre-processing for lighting invariance.
-- **Motion Detection (`motion`)**: MOG2 background subtractor with shadow elimination (>200 threshold) and morphological noise removal.
-- **Object Counting (`count`)**: Adaptive Gaussian binarization, contour perimeter/area calculation, and geometric centroid tracking.
-- **Image Enhancement (`enhance`)**: Filter registry supporting Canny edge detection, YCrCb histogram equalization, Gaussian blur, 3x3 Laplacian sharpening, and adaptive thresholding.
+- **Face Detection (`faces`)**: Uses OpenCV's Haar Cascade classifier with histogram-equalization preprocessing so detections are stable under varied lighting.
+- **Motion Detection (`motion`)**: Uses MOG2 background subtraction with shadow suppression (cutting at threshold 200 to ignore gray shadow pixels) and morphological opening/dilation.
+- **Object Counting (`count`)**: Uses adaptive Gaussian thresholding (robust to uneven lighting) and contour hierarchy analysis to detect, measure, and number discrete objects.
+- **Image Enhancement (`enhance`)**: A filter registry providing Canny edge detection, YCrCb histogram equalization, Gaussian blur, Laplacian sharpening, and adaptive thresholding.
 - **Session Audit (`history`)**: Tabular CLI inspection of recent execution sessions, detection counts, and error states.
-- **Analytical Reporting (`report`)**: Multi-format reporting exporting session data to structured JSON, tabular CSV, and rendered Matplotlib analytics charts.
+- **Analytical Reporting (`report`)**: Exports session findings to JSON and CSV, and generates an automated detection comparison chart across recent runs.
 
 ---
 
@@ -85,14 +98,14 @@ Manual visual monitoring and physical item counting do not scale. VisionGuard pr
 
 ---
 
-## Technologies/Tools Used
+## Technologies & Tools Used
 - **Language**: Python 3.10+ (tested on Python 3.12)
 - **Computer Vision**: OpenCV (`opencv-python` >= 4.8.0)
 - **Numerical Computing**: NumPy (`numpy` >= 1.24.0)
 - **Data Visualization**: Matplotlib (`matplotlib` >= 3.7.0, headless `Agg` backend)
 - **Database**: SQLite3 (Python standard library, relational schema with foreign keys)
-- **Testing**: Pytest (`pytest` >= 7.4.0, isolated fixtures and synthetic media generation)
-- **PDF Generation**: ReportLab (`reportlab` >= 4.0.0)
+- **Testing**: Pytest (`pytest` >= 7.4.0, isolated temporary DB fixtures & synthetic media)
+- **PDF Report Generation**: ReportLab (`reportlab` >= 4.0.0)
 
 ---
 
@@ -126,7 +139,7 @@ pip install -r requirements.txt
 
 ## Command-Line Usage Guide
 
-VisionGuard provides a top-level CLI with dedicated subcommands. You can view help on any subcommand with `--help`:
+VisionGuard provides a unified CLI with subcommands. View help for any subcommand using `--help`:
 ```bash
 python main.py --help
 python main.py faces --help
@@ -148,7 +161,7 @@ python main.py faces --input data/samples/portrait.jpg --output data/output/face
 ```
 
 ### 2. Object Counting
-Detects and enumerates discrete physical objects using adaptive thresholding and contour analysis.
+Detects and numbers discrete physical objects using adaptive thresholding and contour analysis.
 ```bash
 python main.py count --input data/samples/shapes.png --output data/output/count_annotated.png
 ```
@@ -158,7 +171,7 @@ python main.py count --input data/samples/shapes.png --output data/output/count_
 ```
 
 ### 3. Motion Detection in Video
-Processes video frames, subtracts static backgrounds using MOG2, highlights moving objects in red, and saves an annotated video.
+Processes video frames, subtracts background using MOG2, highlights moving objects in red, and saves an annotated video.
 ```bash
 python main.py motion --input data/samples/motion_sample.mp4 --output data/output/motion_annotated.mp4
 ```
@@ -178,7 +191,7 @@ python main.py enhance --input data/samples/portrait.jpg --output data/output/en
 ```
 
 ### 5. Session History
-Displays a formatted tabular summary of all previous CLI sessions stored in the SQLite database.
+Displays a formatted tabular summary of previous analysis sessions stored in SQLite.
 ```bash
 python main.py history --limit 5
 ```
@@ -287,12 +300,13 @@ All high-resolution system design diagrams are located in `docs/diagrams/`:
 visionguard/
 ├── .gitignore
 ├── requirements.txt
-├── README.md                      # Comprehensive project documentation
+├── README.md                      # Complete project documentation
 ├── statement.md                   # Problem statement, scope, target users
 ├── main.py                        # Top-level CLI entry point
-├── generate_report.py             # Script to compile 13-page academic PDF report
+├── generate_report.py             # Script to compile academic PDF report
+├── VisionGuard_Project_Report.pdf # 13-page academic report (under 1MB)
 ├── src/
-│   ├── __init__.py
+│   ├── __init__.py                # Package metadata (Aryan Vyas, 24BAI10343)
 │   ├── config.py                  # Hyperparameters, paths, and thresholds
 │   ├── logger_setup.py            # Dual console & rotating file logging
 │   ├── database.py                # SQLite schema & persistence layer
@@ -319,6 +333,14 @@ visionguard/
 │   └── diagrams/                  # 6 architecture and UML diagrams
 └── logs/                          # Rotating execution audit logs
 ```
+
+---
+
+## Design Decisions & Implementation Notes
+- **Why Classical CV?** Deep learning models are impressive, but they introduce heavy weight files, CUDA version mismatches, and hardware barriers. For focused tasks like face detection and object counting, classical techniques (Haar Cascades, MOG2, and contour analysis) run fast on CPU with zero setup hurdles.
+- **MOG2 Shadow Suppression**: OpenCV's MOG2 background subtractor marks shadow pixels with gray (~127). We apply a threshold cut at 200 so moving shadows are not falsely logged as motion events.
+- **Adaptive vs. Global Thresholding**: For object counting, lighting is rarely uniform across the entire image. Adaptive Gaussian thresholding calculates local thresholds for small pixel neighborhoods, yielding clean shape contours even if one corner is darker than another.
+- **Deterministic Testing**: Rather than relying on external web datasets that might disappear or fail to download, the test suite generates synthetic geometric images and small videos programmatically. This ensures tests run in under 3 seconds on any machine.
 
 ---
 

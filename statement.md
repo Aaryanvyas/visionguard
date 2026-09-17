@@ -1,31 +1,38 @@
 # VisionGuard — Project Statement
 
-## 1. Problem Statement
-Manual visual surveillance and optical inspection — such as monitoring continuous security video feeds for intrusion, detecting human presence in photographs, or manually counting physical items on assembly lines and in inventory images — is labor-intensive, error-prone, and fails to scale. While deep learning offers high theoretical accuracy, modern neural network frameworks often impose heavy GPU dependencies, massive pre-trained model downloads (hundreds of megabytes or gigabytes), complex runtime configurations, and non-deterministic cloud latency.
+**Student Name**: Aryan Vyas  
+**Registration Number**: 24BAI10343  
+**Course**: Computer Vision  
+**Project Type**: Build Your Own Project (Flipped Course Evaluation)  
+**Submission Platform**: VITyarthi  
 
-Organizations, hobbyists, smart camera developers, and academic evaluators require a lightweight, deterministic, completely offline Computer Vision toolkit that solves core surveillance and inspection tasks using robust classical algorithms without external network calls or specialized hardware.
+---
+
+## 1. Problem Statement
+Manual visual monitoring — such as watching a continuous CCTV feed for motion, checking whether a person is present in a photograph, or counting items in an inventory image — is repetitive, tiring, and prone to human error. While deep learning models offer high theoretical accuracy, in practice they often demand heavy GPU hardware, large pretrained weight files (often hundreds of megabytes), complex CUDA environments, and non-deterministic cloud latency.
+
+For small teams, students, hobbyists, or edge deployments (such as a Raspberry Pi doorbell or room monitor), there is a practical need for a lightweight, completely offline computer-vision toolkit that handles everyday visual inspection and monitoring tasks using well-understood, classical algorithms with zero setup headache.
 
 ## 2. Scope of the Project
-VisionGuard addresses this problem by packaging four foundational Computer Vision tasks into a modular, production-grade Command-Line Interface (CLI) application backed by local SQLite persistence and automated reporting:
+VisionGuard addresses this need by packaging four fundamental computer-vision tasks into a modular, offline Command-Line Interface (CLI) application backed by local SQLite logging:
 
-1. **Face Detection**: Fast Haar Cascade detection of frontal human faces with bounding box annotations.
-2. **Motion Detection**: Robust background subtraction using Gaussian Mixture Models (MOG2) with shadow suppression and morphological noise filtration to identify moving entities in video streams.
-3. **Object Counting**: Geometric contour hierarchy analysis and adaptive Gaussian thresholding to identify, count, measure, and enumerate discrete physical objects.
-4. **Image Enhancement**: Spatial and frequency-domain digital image processing filters (Canny edge detection, histogram equalization across YCrCb luminance, Gaussian smoothing, sharpening, and adaptive binarization).
-5. **Data Logging & Reporting**: Relational SQLite event logging (`sessions` and `detections` tables) with automated export to structured JSON, tabular CSV, and graphical Matplotlib summary charts.
+1. **Face Detection**: Fast frontal face detection using OpenCV's Haar Cascade classifier, with contrast equalization for varying room lighting.
+2. **Motion Detection**: Background subtraction using Gaussian Mixture Models (MOG2), with shadow elimination and morphological cleanup to log real motion in video files.
+3. **Object Counting**: Geometric segmentation using adaptive Gaussian thresholding and contour extraction to detect, number, and measure discrete items.
+4. **Image Enhancement**: A filter registry providing spatial and frequency-domain digital enhancements (Canny edges, YCrCb histogram equalization, Gaussian blur, Laplacian sharpening, adaptive binarization).
+5. **Audit Logging & Reporting**: Every run is recorded in a local SQLite database (`sessions` and `detections` tables) with automated export to formatted JSON, CSV, and Matplotlib analytics charts.
 
-The scope strictly prioritizes reproducibility, zero runtime network dependencies, deterministic execution, and complete terminal executability.
+The scope strictly prioritizes 100% offline executability, deterministic test verification, and clean terminal execution without any GUI dependencies.
 
 ## 3. Target Users
-- **Students and Academic Evaluators**: Seeking an end-to-end, reproducible reference implementation of classical computer vision techniques with comprehensive automated test coverage and zero setup friction.
-- **Edge / Embedded Developers**: Building offline smart cameras (e.g., Raspberry Pi doorbell or perimeter monitor) requiring low memory footprint and no subscription-based cloud AI.
-- **Quality Control & Warehouse Operators**: Requiring rapid, deterministic counting of components or items from standard top-down image captures.
-- **Security & Facility Technicians**: Requiring lightweight motion logging and audit history without streaming raw video over external networks.
+- **Students & Evaluators**: Anyone looking for a clean, runnable, well-tested reference implementation of classical CV techniques that works out of the box with zero downloads.
+- **Makers & Embedded Developers**: Builders creating lightweight smart camera monitors (e.g. Raspberry Pi) who need fast, low-RAM alerts without paying for cloud AI subscriptions.
+- **Small-Scale QC & Inventory**: Operators needing a quick way to count objects or components in top-down photos with area and perimeter statistics.
 
 ## 4. High-Level Features
-- **Deterministic & Offline**: Bundles all necessary cascade classifiers and sample datasets. No internet connection or model downloads needed.
-- **Unified Modular CLI**: Clean, intuitive argparse interface with `--help` documentation on all subcommands (`faces`, `motion`, `count`, `enhance`, `report`, `history`).
-- **Relational Persistence (SQLite)**: Automatically audits every processing invocation, tracking timestamps, parameters, outcomes, and bounding box coordinates.
-- **Multi-Format Export**: One-command generation of audit reports in JSON, CSV, and high-resolution graphical bar charts.
-- **Comprehensive Pytest Suite**: 31 automated unit and integration tests verifying invariants, edge cases, and end-to-end pipelines.
-- **Resource Efficient**: Streams video frame-by-frame without loading full media into RAM; utilizes headless Matplotlib rendering (`Agg`).
+- **Zero Runtime Downloads**: Bundles the Haar cascade XML and sample media directly in the repo; runs completely offline.
+- **Clean CLI Interface**: Discoverable argparse commands (`faces`, `motion`, `count`, `enhance`, `report`, `history`) with `--help` documentation on each.
+- **Relational Event Persistence**: SQLite records session timestamps, parameters, outcomes, and exact bounding box coordinates with foreign key constraints.
+- **Automated Reporting**: One command generates structured JSON, tabular CSV, and clean Matplotlib charts comparing detection counts across recent runs.
+- **Automated Test Suite**: 31 comprehensive pytest tests using synthetic mathematical fixtures to verify algorithms and prevent regressions.
+- **Resource Friendly**: Streams video frame-by-frame instead of loading full files into memory; uses Matplotlib headless `Agg` backend.

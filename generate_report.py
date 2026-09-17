@@ -2,10 +2,9 @@ import os
 from pathlib import Path
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
-from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, PageBreak, KeepTogether
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, PageBreak
 )
 from reportlab.pdfgen import canvas
 
@@ -16,7 +15,7 @@ OUTPUT_DIR = PROJECT_DIR / "data" / "output"
 SAMPLES_DIR = PROJECT_DIR / "data" / "samples"
 
 class NumberedCanvas(canvas.Canvas):
-    """Canvas that computes total page count dynamically for page footers."""
+    """Canvas that computes total page count dynamically for running footers."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._saved_page_states = []
@@ -29,13 +28,13 @@ class NumberedCanvas(canvas.Canvas):
         num_pages = len(self._saved_page_states)
         for state in self._saved_page_states:
             self.__dict__.update(state)
-            # Suppress page number on cover page
+            # Suppress running footer on cover page
             if self._pageNumber > 1:
-                self.setFont("Helvetica", 9)
+                self.setFont("Helvetica", 8.5)
                 self.setFillColor(colors.HexColor("#718096"))
                 self.drawRightString(letter[0] - 54, 36, f"Page {self._pageNumber} of {num_pages}")
-                self.drawString(54, 36, "VisionGuard — Computer Vision Flipped Course Project Report")
-                self.setStrokeColor(colors.HexColor("#E2E8F0"))
+                self.drawString(54, 36, "VisionGuard — Aryan Vyas (24BAI10343) | Computer Vision")
+                self.setStrokeColor(colors.HexColor("#CBD5E0"))
                 self.setLineWidth(0.5)
                 self.line(54, 48, letter[0] - 54, 48)
             canvas.Canvas.showPage(self)
@@ -53,7 +52,6 @@ def build_pdf():
 
     styles = getSampleStyleSheet()
 
-    # Custom styles
     title_style = ParagraphStyle(
         "CoverTitle",
         parent=styles["Normal"],
@@ -76,28 +74,28 @@ def build_pdf():
         "SectionHeading",
         parent=styles["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=15,
-        leading=19,
+        fontSize=14.5,
+        leading=18.5,
         textColor=colors.HexColor("#1A365D"),
         spaceBefore=10,
-        spaceAfter=6
+        spaceAfter=5
     )
     subheading = ParagraphStyle(
         "SubHeading",
         parent=styles["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=11.5,
-        leading=15,
+        fontSize=11,
+        leading=14.5,
         textColor=colors.HexColor("#2B6CB0"),
-        spaceBefore=8,
-        spaceAfter=4
+        spaceBefore=7,
+        spaceAfter=3
     )
     body = ParagraphStyle(
         "Body",
         parent=styles["Normal"],
         fontName="Helvetica",
         fontSize=9.2,
-        leading=13.5,
+        leading=13.2,
         textColor=colors.HexColor("#2D3748"),
         spaceBefore=2,
         spaceAfter=4
@@ -119,7 +117,7 @@ def build_pdf():
         textColor=colors.HexColor("#718096"),
         alignment=1,
         spaceBefore=3,
-        spaceAfter=6
+        spaceAfter=5
     )
     code_box = ParagraphStyle(
         "CodeBox",
@@ -133,15 +131,17 @@ def build_pdf():
     story = []
 
     # ================= PAGE 1: COVER PAGE =================
-    story.append(Spacer(1, 140))
+    story.append(Spacer(1, 110))
     story.append(Paragraph("VisionGuard", title_style))
     story.append(Spacer(1, 8))
     story.append(Paragraph("Modular Computer Vision Surveillance & Analytics Toolkit", subtitle_style))
-    story.append(Spacer(1, 70))
-    story.append(Paragraph("<b>Project Report</b>", ParagraphStyle("CoverPR", fontName="Helvetica-Bold", fontSize=14, textColor=colors.HexColor("#1A202C"))))
-    story.append(Spacer(1, 18))
+    story.append(Spacer(1, 50))
+    story.append(Paragraph("<b>Project Report</b>", ParagraphStyle("CoverPR", fontName="Helvetica-Bold", fontSize=13.5, textColor=colors.HexColor("#1A202C"))))
+    story.append(Spacer(1, 16))
 
     cover_meta = [
+        [Paragraph("<b>Student Name</b>", body), Paragraph("Aryan Vyas", body)],
+        [Paragraph("<b>Registration No.</b>", body), Paragraph("24BAI10343", body)],
         [Paragraph("<b>Course</b>", body), Paragraph("Computer Vision", body)],
         [Paragraph("<b>Project Type</b>", body), Paragraph("Build Your Own Project (Flipped Course Evaluation)", body)],
         [Paragraph("<b>Submission Platform</b>", body), Paragraph("VITyarthi", body)],
@@ -150,8 +150,8 @@ def build_pdf():
     meta_table = Table(cover_meta, colWidths=[150, 350])
     meta_table.setStyle(TableStyle([
         ('LINEBELOW', (0, 0), (-1, -1), 0.5, colors.HexColor("#E2E8F0")),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 5.5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5.5),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ]))
     story.append(meta_table)
@@ -173,7 +173,7 @@ def build_pdf():
         body
     ))
 
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
     story.append(Paragraph("3. Problem Statement", section_heading))
     story.append(Paragraph(
         "Manual visual monitoring — watching a video feed for motion, checking whether a person appears in a photo, or counting "
@@ -192,7 +192,7 @@ def build_pdf():
     story.append(Paragraph("• <b>Small-scale \"smart camera\" makers</b> (e.g. Raspberry Pi doorbell/shed monitor) needing simple alerts without a cloud subscription.", bullet))
     story.append(Paragraph("• <b>Instructors/evaluators</b> who need a self-contained, reproducible project to review end-to-end.", bullet))
 
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
     story.append(Paragraph("4. Functional Requirements", section_heading))
     story.append(Paragraph("The project implements four major functional modules, each with a clear input/output structure and a logical CLI-driven workflow:", body))
     story.append(Paragraph("• <b>FR-1 Face Detection:</b> Given an input image, detect all faces present and produce an annotated output image with bounding boxes; log each detected face to the database.", bullet))
@@ -256,8 +256,8 @@ def build_pdf():
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1A365D")),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E0")),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 5.5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5.5),
         ('LEFTPADDING', (0, 0), (-1, -1), 6),
         ('RIGHTPADDING', (0, 0), (-1, -1), 6),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
@@ -275,17 +275,17 @@ def build_pdf():
         "<b>Data & Reporting Layer</b> built on SQLite, which the Report Generator reads back to produce CSV/JSON/chart outputs.",
         body
     ))
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 3))
     if (DIAGRAMS_DIR / "architecture.png").exists():
-        story.append(Image(str(DIAGRAMS_DIR / "architecture.png"), width=440, height=200))
+        story.append(Image(str(DIAGRAMS_DIR / "architecture.png"), width=440, height=195))
         story.append(Paragraph("Figure 6.1 — System Architecture Diagram", fig_caption))
 
-    story.append(Spacer(1, 6))
+    story.append(Spacer(1, 4))
     story.append(Paragraph("7. Design Diagrams", section_heading))
     story.append(Paragraph("7.1 Use Case Diagram", subheading))
     story.append(Paragraph("The system supports one primary actor (the Student/Evaluator running the CLI) and six use cases:", body))
     if (DIAGRAMS_DIR / "use_case.png").exists():
-        story.append(Image(str(DIAGRAMS_DIR / "use_case.png"), width=360, height=180))
+        story.append(Image(str(DIAGRAMS_DIR / "use_case.png"), width=360, height=175))
         story.append(Paragraph("Figure 7.1 — Use Case Diagram", fig_caption))
 
     story.append(Paragraph("7.2 Workflow / Process Flow Diagram", subheading))
@@ -299,24 +299,24 @@ def build_pdf():
     ))
     story.append(Spacer(1, 30))
     if (DIAGRAMS_DIR / "workflow.png").exists():
-        story.append(Image(str(DIAGRAMS_DIR / "workflow.png"), width=500, height=160))
+        story.append(Image(str(DIAGRAMS_DIR / "workflow.png"), width=500, height=155))
         story.append(Paragraph("Figure 7.2 — Process Workflow Diagram", fig_caption))
     story.append(PageBreak())
 
     # ================= PAGE 6: CLASS, SEQUENCE, ER DIAGRAMS =================
     story.append(Paragraph("7.3 Class / Component Diagram", subheading))
     if (DIAGRAMS_DIR / "class_diagram.png").exists():
-        story.append(Image(str(DIAGRAMS_DIR / "class_diagram.png"), width=390, height=170))
+        story.append(Image(str(DIAGRAMS_DIR / "class_diagram.png"), width=390, height=165))
         story.append(Paragraph("Figure 7.3 — Class / Component Diagram", fig_caption))
 
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 3))
     story.append(Paragraph("7.4 Sequence Diagram", subheading))
     story.append(Paragraph("Sequence for a typical detection run (e.g. <font name='Courier'>python main.py faces ...</font>):", body))
     if (DIAGRAMS_DIR / "sequence_diagram.png").exists():
-        story.append(Image(str(DIAGRAMS_DIR / "sequence_diagram.png"), width=390, height=165))
+        story.append(Image(str(DIAGRAMS_DIR / "sequence_diagram.png"), width=390, height=160))
         story.append(Paragraph("Figure 7.4 — Sequence Diagram", fig_caption))
 
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 3))
     story.append(Paragraph("7.5 ER Diagram / Schema Design", subheading))
     story.append(Paragraph(
         "VisionGuard uses two related SQLite tables: <b>sessions</b> (one row per CLI invocation) and <b>detections</b> "
@@ -324,7 +324,7 @@ def build_pdf():
         body
     ))
     if (DIAGRAMS_DIR / "er_diagram.png").exists():
-        story.append(Image(str(DIAGRAMS_DIR / "er_diagram.png"), width=390, height=130))
+        story.append(Image(str(DIAGRAMS_DIR / "er_diagram.png"), width=390, height=125))
         story.append(Paragraph("Figure 7.5 — Entity-Relationship Diagram", fig_caption))
     story.append(PageBreak())
 
@@ -337,7 +337,7 @@ def build_pdf():
     story.append(Paragraph("• <b>Centralised config.py:</b> All thresholds (contour area cut-offs, Haar cascade parameters, frame-resize width) live in one file so behaviour can be tuned without touching business logic.", bullet))
     story.append(Paragraph("• <b>Fail-safe sessions:</b> Every processing function is wrapped so that an exception still results in a 'failed' session row (with the error message) rather than a silent crash or a dangling 'running' row.", bullet))
 
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
     story.append(Paragraph("9. Implementation Details", section_heading))
     story.append(Paragraph("9.1 Face Detection", subheading))
     story.append(Paragraph(
@@ -391,7 +391,7 @@ def build_pdf():
         story.append(Image(str(OUTPUT_DIR / "faces_annotated.jpg"), width=210, height=210))
         story.append(Paragraph("Figure 10.1 — Face detected on a sample portrait (1 face found).", fig_caption))
 
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
     story.append(Paragraph("10.2 Object Counting", subheading))
     if (OUTPUT_DIR / "count_annotated.png").exists():
         story.append(Image(str(OUTPUT_DIR / "count_annotated.png"), width=230, height=195))
@@ -404,7 +404,7 @@ def build_pdf():
         story.append(Image(str(OUTPUT_DIR / "motion_frame.jpg"), width=250, height=185))
         story.append(Paragraph("Figure 10.3 — A frame from the annotated output video; the moving object is boxed in red.", fig_caption))
 
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
     story.append(Paragraph("10.4 Image Enhancement (Canny Edge Detection)", subheading))
     if (OUTPUT_DIR / "enhance_edges.jpg").exists():
         story.append(Image(str(OUTPUT_DIR / "enhance_edges.jpg"), width=210, height=210))
@@ -437,7 +437,7 @@ def build_pdf():
     ]))
     story.append(t_cons)
 
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
     story.append(Paragraph("11. Testing Approach", section_heading))
     story.append(Paragraph(
         "The project uses pytest with 31 unit/integration tests spread across five test modules. Rather than relying on external datasets "
@@ -478,14 +478,14 @@ def build_pdf():
         bullet
     ))
 
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
     story.append(Paragraph("13. Learnings & Key Takeaways", section_heading))
     story.append(Paragraph("• Classical computer-vision techniques (Haar cascades, background subtraction, contour analysis) remain highly practical for well-scoped problems and are far cheaper to deploy and evaluate than deep-learning pipelines.", bullet))
     story.append(Paragraph("• Designing tests around deterministic, self-generated synthetic data (rather than external datasets) makes a computer-vision test suite fast, offline, and exact — the object-counting tests, for example, can assert an exact expected count.", bullet))
     story.append(Paragraph("• Persisting analysis runs to a small relational schema (even for a CLI tool) makes reporting and later analysis dramatically easier than parsing log files.", bullet))
     story.append(Paragraph("• Centralising configuration and logging early made it much easier to tune thresholds (e.g. the motion-detection minimum contour area) in one place while debugging.", bullet))
 
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
     story.append(Paragraph("14. Future Enhancements", section_heading))
     story.append(Paragraph("• Swap the Haar cascade for a DNN-based face detector (e.g. an ONNX/Caffe SSD model) for higher accuracy in low-light or angled conditions, while keeping the same FaceDetector interface.", bullet))
     story.append(Paragraph("• Add multi-object tracking (e.g. via cv2.Tracker implementations or a Kalman filter) so objects/motion regions are tracked across frames rather than re-detected independently each frame.", bullet))
@@ -496,7 +496,7 @@ def build_pdf():
     story.append(Paragraph("• Replace the hard-coded thresholds in config.py with an external YAML/JSON configuration file that can be edited without touching source code.", bullet))
     story.append(Paragraph("• Add face recognition (identity matching against an enrolled set) as an opt-in extension of the existing face-detection module.", bullet))
 
-    story.append(Spacer(1, 20))
+    story.append(Spacer(1, 16))
     story.append(Paragraph("15. References", section_heading))
     refs = [
         ("OpenCV Documentation — Cascade Classifier", "https://docs.opencv.org/4.x/db/d28/tutorial_cascade_classifier.html"),
