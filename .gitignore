@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.pytest_cache/
+
+# Databases & Runtime Generated Data
+data/*.db
+data/*.sqlite3
+data/output/*.mp4
+data/output/*.json
+data/output/*.csv
+*.zip
+
+# Logs
+logs/*.log
+!logs/.gitkeep
+
+# Environments
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
